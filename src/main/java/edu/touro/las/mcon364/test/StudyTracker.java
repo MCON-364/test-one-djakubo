@@ -25,7 +25,14 @@ public class StudyTracker {
      * Throw IllegalArgumentException if name is null or blank.
      */
     public boolean addLearner(String name) {
-        throw new UnsupportedOperationException();
+        if(name.isEmpty()){
+            throw new IllegalArgumentException();
+        }
+        return Optional.ofNullable(scoresByLearner.get(name)).map(existing -> false)
+                .orElseGet(() -> {
+                    scoresByLearner.put(name, new ArrayList<>());
+                    return true;
+                });
     }
 
     /**
@@ -42,7 +49,16 @@ public class StudyTracker {
      * This operation should be undoable.
      */
     public boolean addScore(String name, int score) {
-        throw new UnsupportedOperationException();
+        if (score > 100 || score < 0) {
+            throw new IllegalArgumentException("Invalid score");
+        }
+        return Optional.ofNullable(scoresByLearner.get(name)).map(existing -> false)
+                .orElseGet(() -> {
+                    UndoStep action = () -> scoresByLearner.get(name).add(score);
+                    undoStack.push(action);
+                    return true;
+                }
+            );
     }
 
     /**
@@ -54,7 +70,12 @@ public class StudyTracker {
      * - the learner has no scores
      */
     public Optional<Double> averageFor(String name) {
-        throw new UnsupportedOperationException();
+        if(!scoresByLearner.containsKey(name)||scoresByLearner.get(name).isEmpty()) {
+            return Optional.empty();
+        }
+        else{
+            return Optional.of(scoresByLearner.get(name).stream().mapToDouble(Integer::doubleValue).average().getAsDouble());
+        }
     }
 
     /**
@@ -70,7 +91,17 @@ public class StudyTracker {
      * Return Optional.empty() when no average exists.
      */
     public Optional<String> letterBandFor(String name) {
-        throw new UnsupportedOperationException();
+        Optional<Double> score = averageFor(name);
+        if(score.isPresent()) {
+            return switch((int) (score.get()/10)){
+                case 10,9 ->Optional.of("A");
+                case 8 -> Optional.of("B");
+                case 7-> Optional.of("C");
+                case 6 -> Optional.of("D");
+                default ->Optional.of("F");
+            }
+        ;}
+        else return Optional.empty();
     }
 
     /**
@@ -81,7 +112,10 @@ public class StudyTracker {
      * Return false if there is nothing to undo.
      */
     public boolean undoLastChange() {
-        throw new UnsupportedOperationException();
+        if(undoStack.isEmpty()) {return false;}
+        UndoStep action = undoStack.pop();
+        action.undo();
+        return true;
     }
 
 
