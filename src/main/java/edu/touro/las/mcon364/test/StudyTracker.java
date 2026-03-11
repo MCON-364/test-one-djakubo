@@ -92,16 +92,13 @@ public class StudyTracker {
      */
     public Optional<String> letterBandFor(String name) {
         Optional<Double> score = averageFor(name);
-        if(score.isPresent()) {
-            return switch((int) (score.get()/10)){
-                case 10,9 ->Optional.of("A");
-                case 8 -> Optional.of("B");
-                case 7-> Optional.of("C");
-                case 6 -> Optional.of("D");
-                default ->Optional.of("F");
-            }
-        ;}
-        else return Optional.empty();
+        return score.flatMap(aDouble -> switch ((int) (aDouble / 10)) {
+            case 10, 9 -> Optional.of("A");
+            case 8 -> Optional.of("B");
+            case 7 -> Optional.of("C");
+            case 6 -> Optional.of("D");
+            default -> Optional.of("F");
+        });
     }
 
     /**

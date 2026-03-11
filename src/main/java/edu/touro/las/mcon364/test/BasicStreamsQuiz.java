@@ -29,7 +29,7 @@ public class BasicStreamsQuiz {
      */
     public long countScoresAtLeast(int threshold) {
         return scoresByCourse.entrySet().stream()
-                .filter(x -> x.getValue().stream().allMatch(y-> y>threshold))
+                .filter(x -> x.getValue().stream().allMatch(y-> y>=threshold))
                 .count();
     }
 
@@ -39,7 +39,7 @@ public class BasicStreamsQuiz {
      * If none exists, return Optional.empty().
      */
     public Optional<String> firstLongWord(List<String> words, int minLength) {
-        return words.stream().findFirst().filter(s-> s.length() >= minLength);
+        return words.stream().filter(s-> s.length() >= minLength).findFirst();
     }
 
     /**
